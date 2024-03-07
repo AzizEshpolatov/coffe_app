@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:task/data/models/data_repository/all_products.dart';
+import 'package:task/screens/cart_screen/cart_screen.dart';
 import 'package:task/utils/app_icons/app_icons.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
 
@@ -147,10 +148,9 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(height: 24.getH()),
               Text(
                 "Popular Now",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24.sp,
-                ),
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontSize: 24.w,
+                    ),
               ),
               SizedBox(height: 24.getH()),
               SingleChildScrollView(
@@ -163,7 +163,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         return ZoomTapAnimation(
                           onTap: () {
                             activeIndex = index;
-                            setState(() {});
+                            setState(() {
+
+                            });
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -181,8 +183,13 @@ class _HomeScreenState extends State<HomeScreen> {
                               "${productBox[index]}",
                               style: TextStyle(
                                 color: activeIndex == index
-                                    ? Colors.white
-                                    : Colors.white.withOpacity(.25),
+                                    ? Theme.of(context)
+                                        .colorScheme
+                                        .tertiaryContainer
+                                    : Theme.of(context)
+                                        .colorScheme
+                                        .tertiaryContainer
+                                        .withOpacity(.7),
                                 fontSize: 16.w,
                               ),
                             ),
@@ -203,8 +210,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     allProducts.length,
                     (index) {
                       return ZoomTapAnimation(
-                        onTap: (){
-
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return CartScreen(
+                                  coffeeModel: allProducts[index],
+                                );
+                              },
+                            ),
+                          );
                         },
                         child: Container(
                           decoration: BoxDecoration(
@@ -222,7 +238,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 child: activeIndex == 0
                                     ? ClipRRect(
-                                        borderRadius: BorderRadius.circular(8.r),
+                                        borderRadius:
+                                            BorderRadius.circular(8.r),
                                         child: Image.asset(
                                           allProducts[index].imageUrl,
                                           fit: BoxFit.cover,
