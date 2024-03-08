@@ -1,26 +1,5 @@
 import 'package:task/utils/app_images/app_images.dart';
-
-import '../coffee_category_model.dart';
 import '../coffee_model/coffee_model.dart';
-
-List<CoffeeCategoryModel> categories = [
-  CoffeeCategoryModel(
-    id: 1,
-    name: "Mocha",
-  ),
-  CoffeeCategoryModel(
-    id: 2,
-    name: "Latte",
-  ),
-  CoffeeCategoryModel(
-    id: 3,
-    name: "Cappucino",
-  ),
-  CoffeeCategoryModel(
-    id: 4,
-    name: "Espresso",
-  ),
-];
 
 List<CoffeeModel> allProducts = [
   // ========================== mocha coffee =====================//

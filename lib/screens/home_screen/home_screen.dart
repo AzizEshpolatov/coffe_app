@@ -6,9 +6,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:task/data/models/data_repository/all_products.dart';
 import 'package:task/screens/cart_screen/cart_screen.dart';
+import 'package:task/screens/home_screen/widgets/global_button.dart';
+import 'package:task/screens/home_screen/widgets/my_drawer.dart';
 import 'package:task/utils/app_icons/app_icons.dart';
 import 'package:zoom_tap_animation/zoom_tap_animation.dart';
-
+import '../../data/models/coffee_category_model/coffee_category_model.dart';
+import '../../data/models/coffee_model/coffee_model.dart';
 import '../../utils/size/app_size.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,9 +22,36 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int activeIndex = 0;
-  bool isSelected = true;
+  // category all
+  List<CoffeeCategoryModel> categories = [
+    CoffeeCategoryModel(
+      id: 0,
+      name: "All",
+    ),
+    CoffeeCategoryModel(
+      id: 1,
+      name: "Mocha",
+    ),
+    CoffeeCategoryModel(
+      id: 2,
+      name: "Latte",
+    ),
+    CoffeeCategoryModel(
+      id: 3,
+      name: "Cappucino",
+    ),
+    CoffeeCategoryModel(
+      id: 4,
+      name: "Espresso",
+    ),
+  ];
+
+  // ozgaruvchilar
+  List<CoffeeModel> temp = [];
+  int categoryIndex = 0;
+
   final scaffoldKey = GlobalKey<ScaffoldState>();
+  bool isSelected = false;
 
   selected() async {
     isSelected = await AdaptiveTheme.getThemeMode() == AdaptiveThemeMode.dark;
@@ -30,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
+    temp = allProducts;
     selected();
     super.initState();
   }
@@ -47,47 +78,16 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         key: scaffoldKey,
         drawerEnableOpenDragGesture: false,
-        drawer: Drawer(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: 20.getW(), vertical: 30.getH()),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      "Theme",
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontSize: 16.w,
-                          ),
-                    ),
-                    const Spacer(),
-                    Switch(
-                      value: isSelected,
-                      onChanged: (v) {
-                        if (v) {
-                          AdaptiveTheme.of(context).setDark();
-                        } else {
-                          AdaptiveTheme.of(context).setLight();
-                        }
-                        isSelected = v;
-                      },
-                      activeTrackColor: isSelected ? Colors.blue : Colors.grey,
-                      inactiveTrackColor: isSelected
-                          ? Colors.blue.withOpacity(0.5)
-                          : Colors.grey.withOpacity(0.5),
-                      activeColor: isSelected ? Colors.white : Colors.black,
-                      inactiveThumbColor:
-                          isSelected ? Colors.white : Colors.black,
-                    ),
-                  ],
-                ),
-                SizedBox(height: 15.getH()),
-                // TODO til ozgarishi qowiladi!!!
-              ],
-            ),
-          ),
+        drawer: MyDrawer(
+          isSelected: isSelected,
+          onChanged: (v) {
+            if (v) {
+              AdaptiveTheme.of(context).setDark();
+            } else {
+              AdaptiveTheme.of(context).setLight();
+            }
+            isSelected = v;
+          },
         ),
         body: Padding(
           padding: EdgeInsets.symmetric(horizontal: 28.getW()),
@@ -97,42 +97,31 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(height: 48.getH()),
               Row(
                 children: [
-                  ZoomTapAnimation(
+                  GlobalButton(
+                    isSelected: isSelected,
+                    iconPath: AppIcons.menu,
+                    padding: EdgeInsets.only(
+                      top: 8.getH(),
+                      bottom: 8.getH(),
+                      right: 8.getW(),
+                    ),
                     onTap: () {
                       scaffoldKey.currentState!.openDrawer();
                     },
-                    child: SvgPicture.asset(
-                      AppIcons.menu,
-                      width: 32.getW(),
-                      colorFilter: ColorFilter.mode(
-                        isSelected == true ? Colors.white : Colors.black,
-                        BlendMode.srcIn,
-                      ),
-                    ),
                   ),
                   const Spacer(),
-                  ZoomTapAnimation(
+                  GlobalButton(
+                    isSelected: isSelected,
+                    iconPath: AppIcons.search,
+                    padding: EdgeInsets.all(8.r),
                     onTap: () {},
-                    child: SvgPicture.asset(
-                      AppIcons.search,
-                      width: 24.getW(),
-                      colorFilter: ColorFilter.mode(
-                        isSelected == true ? Colors.white : Colors.black,
-                        BlendMode.srcIn,
-                      ),
-                    ),
                   ),
-                  SizedBox(width: 24.getW()),
-                  ZoomTapAnimation(
+                  SizedBox(width: 8.getW()),
+                  GlobalButton(
+                    isSelected: isSelected,
+                    iconPath: AppIcons.favorite,
+                    padding: EdgeInsets.all(8.r),
                     onTap: () {},
-                    child: SvgPicture.asset(
-                      AppIcons.favorite,
-                      width: 24.getW(),
-                      colorFilter: ColorFilter.mode(
-                        isSelected == true ? Colors.white : Colors.black,
-                        BlendMode.srcIn,
-                      ),
-                    ),
                   ),
                 ],
               ),
@@ -145,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
               //     fontSize: 30.sp,
               //   ),
               // ),
-              SizedBox(height: 24.getH()),
+              SizedBox(height: 16.getH()),
               Text(
                 "Popular Now",
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -158,21 +147,56 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   children: [
                     ...List.generate(
-                      productBox.length,
+                      categories.length,
                       (index) {
                         return ZoomTapAnimation(
                           onTap: () {
-                            activeIndex = index;
-                            setState(() {
-
-                            });
+                            temp = [];
+                            if (index == 0) {
+                              categoryIndex = 0;
+                              temp = allProducts;
+                            } else if (index == 1) {
+                              categoryIndex = 1;
+                              temp = allProducts
+                                  .where(
+                                    (element) =>
+                                        element.name == categories[index].name,
+                                  )
+                                  .toList();
+                            } else if (index == 2) {
+                              categoryIndex = 2;
+                              temp = allProducts
+                                  .where(
+                                    (element) =>
+                                        element.name == categories[index].name,
+                                  )
+                                  .toList();
+                            } else if (index == 3) {
+                              categoryIndex = 3;
+                              temp = allProducts
+                                  .where(
+                                    (element) =>
+                                        element.name == categories[index].name,
+                                  )
+                                  .toList();
+                            } else {
+                              categoryIndex = 4;
+                              temp = allProducts
+                                  .where(
+                                    (element) =>
+                                        element.name == categories[index].name,
+                                  )
+                                  .toList();
+                            }
+                            categoryIndex = index;
+                            setState(() {});
                           },
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8.r),
                               border: Border.all(
                                 width: 1.r,
-                                color: activeIndex == index
+                                color: categoryIndex == true
                                     ? Colors.grey
                                     : Colors.transparent,
                               ),
@@ -180,9 +204,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: EdgeInsets.symmetric(
                                 horizontal: 16.getW(), vertical: 8.getH()),
                             child: Text(
-                              "${productBox[index]}",
+                              categories[index].name,
                               style: TextStyle(
-                                color: activeIndex == index
+                                color: categoryIndex == index
                                     ? Theme.of(context)
                                         .colorScheme
                                         .tertiaryContainer
@@ -202,88 +226,89 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               Expanded(
                 child: GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 15.getW(),
-                  mainAxisSpacing: 15.getH(),
-                  childAspectRatio: 0.72,
-                  children: List.generate(
-                    allProducts.length,
-                    (index) {
-                      return ZoomTapAnimation(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return CartScreen(
-                                  coffeeModel: allProducts[index],
-                                );
-                              },
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 15.getW(),
+                    mainAxisSpacing: 15.getH(),
+                    childAspectRatio: 0.72,
+                    children: List.generate(
+                      temp.length,
+                      (index) {
+                        return ZoomTapAnimation(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return CartScreen(
+                                    coffeeModel: temp[index],
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.r),
+                              color: Theme.of(context).colorScheme.onBackground,
                             ),
-                          );
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.r),
-                            color: Theme.of(context).colorScheme.onBackground,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                height: 232.getH(),
-                                width: 178.getW(),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.r),
-                                ),
-                                child: activeIndex == 0
-                                    ? ClipRRect(
-                                        borderRadius:
-                                            BorderRadius.circular(8.r),
-                                        child: Image.asset(
-                                          allProducts[index].imageUrl,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      )
-                                    : const SizedBox(),
-                              ),
-                              SizedBox(height: 10.getH()),
-                              Padding(
-                                padding:
-                                    EdgeInsets.symmetric(horizontal: 10.getW()),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      allProducts[index].name,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium!
-                                          .copyWith(
-                                            fontSize: 16.getW(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  height: 232.getH(),
+                                  width: 178.getW(),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                  ),
+                                  child: categoryIndex == index
+                                      ? ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          child: Image.asset(
+                                            temp[index].imagePath,
+                                            fit: BoxFit.cover,
                                           ),
-                                    ),
-                                    SizedBox(height: 5.getH()),
-                                    Text(
-                                      allProducts[index].subtitle,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall!
-                                          .copyWith(
-                                            fontSize: 16.getW(),
-                                          ),
-                                    ),
-                                  ],
+                                        )
+                                      : const SizedBox(),
                                 ),
-                              ),
-                            ],
+                                SizedBox(height: 10.getH()),
+                                Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 10.getW()),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        temp[index].name,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyMedium!
+                                            .copyWith(
+                                              fontSize: 16.getW(),
+                                            ),
+                                      ),
+                                      SizedBox(height: 5.getH()),
+                                      Text(
+                                        temp[index].subtitle,
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .titleSmall!
+                                            .copyWith(
+                                              fontSize: 16.getW(),
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                        );
+                      },
+                    )),
               ),
+              SizedBox(height: 20.getH()),
             ],
           ),
         ),
@@ -291,11 +316,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
-List productBox = [
-  "All",
-  "Mocha",
-  "Latte",
-  "Cappuchino",
-  "Espresso",
-];

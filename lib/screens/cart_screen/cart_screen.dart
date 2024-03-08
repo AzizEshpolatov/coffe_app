@@ -31,7 +31,7 @@ class _CartScreenState extends State<CartScreen> {
               Stack(
                 children: [
                   Image.asset(
-                    widget.coffeeModel.imageUrl,
+                    widget.coffeeModel.imagePath,
                     fit: BoxFit.cover,
                     height: 540.getH(),
                     width: width - 48.getW(),
