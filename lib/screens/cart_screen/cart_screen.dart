@@ -48,12 +48,46 @@ class _CartScreenState extends State<CartScreen> {
                     ),
                     Positioned(
                       left: 16.getW(),
-                      top: 20.getH(),
+                      top: 40.getH(),
                       child: ZoomTapAnimation(
                         onTap: () {
                           Navigator.pop(context);
                         },
-                        child: SvgPicture.asset(AppIcons.arrowBack),
+                        child: Container(
+                          width: 48.getW(),
+                          height: 48.h,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.r),
+                            color: const Color(0xFF0C0F14),
+                          ),
+                          child: Center(
+                            child: SvgPicture.asset(
+                              AppIcons.arrowBack,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: 16.getW(),
+                      top: 40.getH(),
+                      child: ZoomTapAnimation(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          width: 48.getW(),
+                          height: 48.h,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8.r),
+                            color: const Color(0xFF0C0F14),
+                          ),
+                          child: Center(
+                            child: SvgPicture.asset(
+                              AppIcons.favorite,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     Positioned(
