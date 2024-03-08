@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return AnnotatedRegion(
       value: const SystemUiOverlayStyle(
-        statusBarIconBrightness: Brightness.dark,
+        statusBarIconBrightness: Brightness.light,
         statusBarColor: Colors.transparent,
       ),
       child: Scaffold(
